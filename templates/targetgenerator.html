@@ -1,10 +1,24 @@
 <!DOCTYPE html>
 <html>
+
 <body>
 
-<form action="/download_pdf" method="get">
-  <button type="submit">Download PDF</button>
-</form>
+  <form action="/download_pdf" method="get">
+    <label for="moa">MOA per click:</label>
+    <input type="number" id="moa" name="moa" step="0.1"><br>
+
+    <label for="yardage">Yardage:</label>
+    <input type="number" id="yardage" name="yardage" step="1"><br>
+
+    <label for="diagonal_thickness">Diagonal Lines Thickness</label>
+    <input type="number" id="diagonal_thickness" name="diagonal_thickness" step="1"><br>
+
+    <label>scope adjustment quadrants/text<input type="checkbox" name="scope adjustment quadrants/text"
+        value="scope adjustment quadrants/text">
+    </label><br>
+    <button type="submit">Download PDF</button>
+  </form>
 
 </body>
+
 </html>
