@@ -15,7 +15,7 @@ def minute_of_angle(input: float, moa: float):
 
 
 def draw_centered_text(
-    c: canvas,
+    c: canvas.Canvas,
     text: str,
     x: float,
     y: float,
