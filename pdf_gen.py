@@ -36,7 +36,7 @@ def draw_centered_text(
 def create_target(
     yards: float = 100,
     MOA: float = 0.25,
-    page_size: tuple = (8.5 * inch, 11 * inch),
+    page_size: tuple[float, float] = (8.5 * inch, 11 * inch),
     margin: float = 0.5 * inch,
     diagonal_thickness: int = 5,
     scope_adjustment_text: bool = True,
