@@ -1,26 +1,29 @@
-from reportlab.pdfgen import canvas
-from reportlab.lib.units import inch
 import math
 
+from reportlab.lib.units import inch
+from reportlab.pdfgen import canvas
 
-def minute_of_angle(input, moa, input_unit="yard", output_unit="inch"):
 
-    # One MOA is equal to 1/60 of a degree.
+def minute_of_angle(input: float, moa: float):
+    """Calculate the size of a minute of angle (MOA) in inches at a given yardage."""
+
     moa_per_degree = moa / 60
-
-    if input_unit == "yard":
-        inches = input * 3 * 12
-
-    if output_unit == "inch":
-        # Calculate the MOA.
-        moa = inches * math.radians(moa_per_degree / 2) * 2
+    inches = input * 3 * 12
+    moa = inches * math.radians(moa_per_degree / 2) * 2
 
     return moa
 
 
 def draw_centered_text(
-    c, text, x, y, font="Helvetica", font_size=12, font_color="black"
+    c: canvas,
+    text: str,
+    x: float,
+    y: float,
+    font="Helvetica",
+    font_size=12,
+    font_color="black",
 ):
+    """Draw text centered around a given point."""
     c.setFont(font, font_size)
     c.setFillColor(font_color)
     text_width = c.stringWidth(text, font, font_size)
@@ -31,15 +34,21 @@ def draw_centered_text(
 
 
 def create_target(
-    yards=100,
-    MOA=1,
-    page_size=(8.5 * inch, 11 * inch),
-    margin=0.5 * inch,
-    diagonal_thickness=5,
+    yards: float = 100,
+    MOA: float = 0.25,
+    page_size: tuple = (8.5 * inch, 11 * inch),
+    margin: float = 0.5 * inch,
+    diagonal_thickness: int = 5,
+    scope_adjustment_text: bool = True,
 ):
+    """Create a target PDF with a grid spacing of a specified MOA click at a given yardage."""
+
     # Create a PDF canvas
-    filename = f"{yards}yards_{str(MOA).replace('.','-')}moa.pdf"
+    filename = f"static/{int(yards)}yards_{str(MOA).replace('.','-')}moa.pdf"
     pdf = canvas.Canvas(filename, pagesize=page_size)
+
+    # Set the title of the PDF
+    pdf.setTitle(f"Target - {int(yards)} yards - {MOA} MOA per click")
 
     pdf.setStrokeColor("black")
     pdf.setLineWidth(1)
@@ -66,13 +75,14 @@ def create_target(
     x_center = margin + available_width / 2 * inch
     y_center = margin + available_height / 2 * inch
 
-    # Quadrant lines
-    pdf.setStrokeColor("gray")
-    pdf.setLineWidth(5)
-    pdf.line(x_center, y_start, x_center, y_start + grid_height * inch)
-    pdf.line(x_start, y_center, x_start + grid_width * inch, y_center)
-    pdf.setStrokeColor("black")
-    pdf.setLineWidth(1)
+    if scope_adjustment_text:
+        # Quadrant lines
+        pdf.setStrokeColor("gray")
+        pdf.setLineWidth(5)
+        pdf.line(x_center, y_start, x_center, y_start + grid_height * inch)
+        pdf.line(x_start, y_center, x_start + grid_width * inch, y_center)
+        pdf.setStrokeColor("black")
+        pdf.setLineWidth(1)
 
     # Draw horizontal lines
     for i in range(num_rows + 1):
@@ -94,39 +104,40 @@ def create_target(
     )
 
     # Scope Adjustment Text
-    scope_adjustment_text_size = 72
-    draw_centered_text(
-        pdf,
-        "R/U",
-        x_center - (x_center - x_start) / 2,
-        y_center - (y_center - y_start) / 2,
-        font_size=scope_adjustment_text_size,
-        font_color="gray",
-    )
-    draw_centered_text(
-        pdf,
-        "R/D",
-        x_center - (x_center - x_start) / 2,
-        y_center + (y_center - y_start) / 2,
-        font_size=scope_adjustment_text_size,
-        font_color="gray",
-    )
-    draw_centered_text(
-        pdf,
-        "L/U",
-        x_center + (x_center - x_start) / 2,
-        y_center - (y_center - y_start) / 2,
-        font_size=scope_adjustment_text_size,
-        font_color="gray",
-    )
-    draw_centered_text(
-        pdf,
-        "L/D",
-        x_center + (x_center - x_start) / 2,
-        y_center + (y_center - y_start) / 2,
-        font_size=scope_adjustment_text_size,
-        font_color="gray",
-    )
+    if scope_adjustment_text:
+        scope_adjustment_text_size = 72
+        draw_centered_text(
+            pdf,
+            "R/U",
+            x_center - (x_center - x_start) / 2,
+            y_center - (y_center - y_start) / 2,
+            font_size=scope_adjustment_text_size,
+            font_color="gray",
+        )
+        draw_centered_text(
+            pdf,
+            "R/D",
+            x_center - (x_center - x_start) / 2,
+            y_center + (y_center - y_start) / 2,
+            font_size=scope_adjustment_text_size,
+            font_color="gray",
+        )
+        draw_centered_text(
+            pdf,
+            "L/U",
+            x_center + (x_center - x_start) / 2,
+            y_center - (y_center - y_start) / 2,
+            font_size=scope_adjustment_text_size,
+            font_color="gray",
+        )
+        draw_centered_text(
+            pdf,
+            "L/D",
+            x_center + (x_center - x_start) / 2,
+            y_center + (y_center - y_start) / 2,
+            font_size=scope_adjustment_text_size,
+            font_color="gray",
+        )
 
     pdf.save()
 
