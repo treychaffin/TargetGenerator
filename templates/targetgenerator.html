@@ -1,24 +1,37 @@
 <!DOCTYPE html>
 <html>
 
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+
 <body>
 
-  <form action="/download_pdf" method="post">
-    <label for="moa">MOA per click:</label>
-    <input type="number" id="moa" name="moa" step="0.1"><br>
+  <form action="/create_target" method="post">
+    <table>
+      <tr>
+        <td><label for="moa">MOA per click:</label></td>
+        <td><input type="number" id="moa" name="moa" step="0.01"><br></td>
+      </tr>
 
-    <label for="yardage">Yardage:</label>
-    <input type="number" id="yardage" name="yardage" step="1"><br>
+      <tr>
+        <td><label for="yardage">Yardage:</label></td>
+        <td><input type="number" id="yardage" name="yardage" step="1"><br></td>
+      </tr>
 
-    <label for="diagonal_thickness">Diagonal Lines Thickness</label>
-    <input type="number" id="diagonal_thickness" name="diagonal_thickness" step="1"><br>
+      <tr>
+        <td><label for="diagonal_thickness">Diagonal Lines Thickness:</label></td>
+        <td><input type="number" id="diagonal_thickness" name="diagonal_thickness" step="1"><br></td>
+      </tr>
 
-    <label>scope adjustment quadrants/text<input type="checkbox" name="scope adjustment quadrants/text"
-        value="scope adjustment quadrants/text">
-    </label><br>
-    <button type="submit">Download PDF</button>
+      <tr>
+        <td><label>Scope Adjustment Guide:</label></td>
+        <td><input type="checkbox" name="scope_adjustment_text"><br></td>
+      </tr>
+    </table>
+    <button type="submit">Generate PDF</button>
+
   </form>
 
 </body>
-
-</html>
