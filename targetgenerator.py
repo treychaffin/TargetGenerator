@@ -1,4 +1,6 @@
-from flask import Flask, send_file, render_template, request
+from flask import Flask, redirect, render_template, request, url_for
+
+from pdf_gen import create_target
 
 app = Flask(__name__)
 
@@ -8,16 +10,29 @@ def download_page():
     return render_template("targetgenerator.html")
 
 
-@app.route("/download_pdf", methods=["GET", "POST"])
+@app.route("/create_target", methods=["GET", "POST"])
 def run_function():
     # Run your function here
     if request.method == "POST":
         moa = request.form.get("moa")
         yardage = request.form.get("yardage")
         diagonal_thickness = request.form.get("diagonal_thickness")
-        print(moa, yardage, diagonal_thickness)
-    return send_file("100yards_0-5moa.pdf", as_attachment=True)
+        scope_adjustment_text = bool(request.form.get("scope_adjustment_text"))
+        create_target(
+            MOA=float(moa),
+            yards=float(yardage),
+            diagonal_thickness=float(diagonal_thickness),
+            scope_adjustment_text=bool(scope_adjustment_text),
+        )
+        filename = f"{str(yardage)}yards_{str(moa).replace('.','-')}moa.pdf"
+        return redirect(url_for("view_pdf", filename=filename))
+
+
+@app.route("/pdf")
+def view_pdf():
+    filename = request.args.get("filename")
+    return render_template("pdf.html", filename=filename)
 
 
 if __name__ == "__main__":
-    app.run(port=5000)
+    app.run(port=5000, debug=True)
