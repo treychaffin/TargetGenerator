@@ -5,12 +5,6 @@ body {
     padding: 0;
 }
 
-.subtitle {
-    color: rgb(0, 0, 0);
-    font-size: 12px;
-    text-align: center;
-}
-
 .description {
     color: rgb(0, 0, 0);
     font-size: 16px;
@@ -68,4 +62,11 @@ button {
 
 .left-align {
     text-align: left;
+}
+
+footer {
+    text-align: center;
+    padding: 20px 0;
+    margin-top: 40px;
+    font-size: 0.8em;
 }
