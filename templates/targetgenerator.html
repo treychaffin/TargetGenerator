@@ -2,32 +2,44 @@
 <html>
 
 <head>
+  <title>Target Generator</title>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
 <body>
 
+  <h1>Target Generator</h1>
+  <p class="subtitle">by Trey Chaffin | <a href="https://github.com/treychaffin/TargetGenerator">Github</a></p>
+
+  <h2>Instructions</h2>
+  <p>Fill out the form below to generate a target PDF. The target will be generated with the following features:</p>
+
   <form action="/create_target" method="post">
     <table>
       <tr>
-        <td><label for="moa">MOA per click:</label></td>
+        <td class="right-align"><label for="moa">MOA per click:</label></td>
         <td><input type="number" id="moa" name="moa" step="0.01"><br></td>
+        <td class="left-align">The number of MOA per click of your scope.</td>
       </tr>
 
       <tr>
-        <td><label for="yardage">Yardage:</label></td>
+        <td class="right-align"><label for="yardage">Yardage:</label></td>
         <td><input type="number" id="yardage" name="yardage" step="1"><br></td>
+        <td class="left-align">The yardage at which you will be shooting.</td>
       </tr>
 
       <tr>
-        <td><label for="diagonal_thickness">Diagonal Lines Thickness:</label></td>
+        <td class="right-align"><label for="diagonal_thickness">Diagonal Lines Thickness:</label></td>
         <td><input type="number" id="diagonal_thickness" name="diagonal_thickness" step="1"><br></td>
+        <td class="left-align">The thickness of the diagonal lines on the target. [pt, 72pt = 1 inch]</td>
       </tr>
 
       <tr>
-        <td><label>Scope Adjustment Guide:</label></td>
+        <td class="right-align"><label>Scope Adjustment Guide:</label></td>
         <td><input type="checkbox" name="scope_adjustment_text"><br></td>
+        <td class="left-align">Text to help you adjust your scope based on your shot group.</td>
       </tr>
     </table>
     <button type="submit">Generate PDF</button>
