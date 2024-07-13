@@ -22,6 +22,12 @@ def run_function():
         yardage = request.form.get("yardage")
         diagonal_thickness = request.form.get("diagonal_thickness")
         scope_adjustment_text = bool(request.form.get("scope_adjustment_text"))
+
+        # Ensure variables are the correct types
+        moa = "0" + moa if moa.startswith(".") else moa  # float
+        yardage = "0" + yardage if yardage.startswith(".") else yardage  # float
+        diagonal_thickness = int(diagonal_thickness)  # int
+
         create_target(
             MOA=float(moa),
             yards=float(yardage),
