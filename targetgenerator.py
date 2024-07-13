@@ -40,7 +40,7 @@ def view_pdf():
 
 @app.route("/delete_pdf", methods=["POST"])
 def delete_pdf():
-    """Delete the PDF file after backing out of viewing/downloading it."""
+    """Delete the PDF file after exiting viewing/downloading it."""
 
     # prevent path injection
     sanitized_filename = re.sub(r"[^a-zA-Z0-9\-_\.]", "", filename)
