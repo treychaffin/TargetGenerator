@@ -1,4 +1,6 @@
-from flask import Flask, redirect, render_template, request, url_for
+import os
+
+from flask import Flask, after_this_request, redirect, render_template, request, url_for
 
 from pdf_gen import create_target
 
@@ -12,7 +14,7 @@ def download_page():
 
 @app.route("/create_target", methods=["GET", "POST"])
 def run_function():
-    # Run your function here
+    global filename
     if request.method == "POST":
         moa = request.form.get("moa")
         yardage = request.form.get("yardage")
@@ -32,6 +34,16 @@ def run_function():
 def view_pdf():
     filename = request.args.get("filename")
     return render_template("pdf.html", filename=filename)
+
+
+@app.route("/delete_pdf", methods=["POST"])
+def delete_pdf():
+    filepath = os.path.join(os.getcwd(), "static", filename)
+    try:
+        os.remove(filepath)
+    except FileNotFoundError:
+        pass
+    return "", 204
 
 
 if __name__ == "__main__":
