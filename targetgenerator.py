@@ -1,6 +1,8 @@
 import os
+import re
 
-from flask import Flask, after_this_request, redirect, render_template, request, url_for
+from flask import Flask, redirect, render_template, request, url_for
+from werkzeug.utils import safe_join
 
 from pdf_gen import create_target
 
@@ -38,7 +40,16 @@ def view_pdf():
 
 @app.route("/delete_pdf", methods=["POST"])
 def delete_pdf():
-    filepath = os.path.join(os.getcwd(), "static", filename)
+    """Delete the PDF file after backing out of viewing/downloading it."""
+
+    # prevent path injection
+    sanitized_filename = re.sub(r"[^a-zA-Z0-9\-_\.]", "", filename)
+    filepath = safe_join(os.getcwd(), "static", sanitized_filename)
+    normalized_path = os.path.normpath(filepath)
+    base_path = os.path.normpath(os.getcwd() + "/static")
+    if not normalized_path.startswith(base_path):
+        return "Invalid file path", 400
+
     try:
         os.remove(filepath)
     except FileNotFoundError:
