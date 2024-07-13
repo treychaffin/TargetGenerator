@@ -25,6 +25,11 @@ def run_function():
 
         # Ensure variables are the correct types
         moa = "0" + moa if moa.startswith(".") else moa  # float
+        diagonal_thickness = (
+            "0" + diagonal_thickness
+            if diagonal_thickness.startswith(".")
+            else diagonal_thickness
+        )  # float
 
         create_target(
             MOA=float(moa),

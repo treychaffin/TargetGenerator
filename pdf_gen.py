@@ -95,7 +95,7 @@ def create_target(
         pdf.line(x, y_start, x, y_start + grid_height * inch)
 
     # Draw diagonal lines
-    pdf.setLineWidth(diagonal_thickness)
+    pdf.setLineWidth(diagonal_thickness * 72)  # Convert from inches to points
     pdf.line(
         x_start, y_start, x_start + grid_width * inch, y_start + grid_height * inch
     )
