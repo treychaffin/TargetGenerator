@@ -7,7 +7,19 @@ body {
 
 .subtitle {
     color: rgb(0, 0, 0);
-    font-size: 18px;
+    font-size: 12px;
+    text-align: center;
+}
+
+.description {
+    color: rgb(0, 0, 0);
+    font-size: 16px;
+    text-align: center;
+}
+
+.instructions {
+    color: rgb(0, 0, 0);
+    font-size: 16px;
     text-align: center;
 }
 
@@ -20,12 +32,6 @@ h1 {
 h2 {
     color: rgb(0, 0, 0);
     font-size: 36px;
-    text-align: center;
-}
-
-p {
-    color: rgb(0, 0, 0);
-    font-size: 18px;
     text-align: center;
 }
 
