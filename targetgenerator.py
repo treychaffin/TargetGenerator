@@ -2,7 +2,7 @@ import os
 import re
 
 from flask import Flask, redirect, render_template, request, url_for
-from werkzeug.utils import safe_join
+from werkzeug.security import safe_join
 
 from pdf_gen import target
 
@@ -18,10 +18,10 @@ def download_page():
 def run_function():
     global filename
     if request.method == "POST":
-        moa = request.form.get("moa")
-        yardage = request.form.get("yardage")
-        diagonal_thickness = request.form.get("diagonal_thickness")
-        scope_adjustment_text = bool(request.form.get("scope_adjustment_text"))
+        moa = request.form.get("moa", "0.25")
+        yardage = request.form.get("yardage", "100")
+        diagonal_thickness = request.form.get("diagonal_thickness", "0.125")
+        scope_adjustment_text = request.form.get("scope_adjustment_text", False)
 
         # Ensure variables are the correct types
         moa = "0" + moa if moa.startswith(".") else moa  # float
@@ -31,14 +31,19 @@ def run_function():
             else diagonal_thickness
         )  # float
 
-        Target = target(yardage, moa, diagonal_thickness, scope_adjustment_text)
+        Target = target(
+            float(yardage),
+            float(moa),
+            float(diagonal_thickness),
+            bool(scope_adjustment_text),
+        )
         Target.create_target()
-        return redirect(url_for("view_pdf", filename=Target.filename))
+        filename = Target.filename
+        return redirect(url_for("view_pdf", filename=filename))
 
 
 @app.route("/pdf")
 def view_pdf():
-    filename = request.args.get("filename")
     return render_template("pdf.html", filename=filename)
 
 
@@ -46,7 +51,11 @@ def view_pdf():
 def delete_pdf():
     """Delete the PDF file after exiting viewing/downloading it."""
 
+    if filename is None:
+        return "No file to delete", 400
+
     # prevent path injection
+    print(f"filename[{type(filename)}]: {filename}")
     sanitized_filename = re.sub(r"[^a-zA-Z0-9\-_\.]", "", filename)
     filepath = safe_join(os.getcwd(), "static", sanitized_filename)
     normalized_path = os.path.normpath(filepath)

@@ -14,19 +14,17 @@ class target:
     ) -> None:
         """Initialize the target object with the given parameters."""
         self.filename: str = (
-            f"static/{int(yards)}yards_{str(MOA).replace('.','-')}moa.pdf"
+            f"{str(yards).replace('.','-')}yards_{str(MOA).replace('.','-')}moa.pdf"
         )
-        self.yards: float = yards
-        self.MOA: float = MOA
-        self.diagonal_thickness: float = diagonal_thickness
-        self.scope_adjustment_text: bool = scope_adjustment_text
+        self.yards: float = float(yards)
+        self.MOA: float = float(MOA)
+        self.diagonal_thickness: float = float(diagonal_thickness)
+        self.scope_adjustment_text: bool = bool(scope_adjustment_text)
         self.page_size: tuple[float, float] = (8.5 * inch, 11 * inch)
-        self.pdf: canvas = canvas.Canvas(self.filename, pagesize=self.page_size)
-        self.margin: float = 0.5 * inch
+        self.margin: float = float(0.5 * inch)
 
     def minute_of_angle(self) -> float:
         """Calculate the size of a minute of angle (MOA) in inches at a given yardage."""
-
         moa_per_degree = self.MOA / 60.0
         inches = self.yards * 3 * 12
         moa_inches = inches * math.radians(moa_per_degree / 2) * 2
@@ -54,21 +52,22 @@ class target:
     def create_target(self) -> None:
         """Create a target PDF with a grid spacing of a specified MOA click at a given yardage."""
 
-        # Set the title of the PDF
-        self.pdf.setTitle(
-            f"Target - {int(self.yards)} yards - {self.MOA} MOA per click"
-        )
+        self.filename = "static/" + self.filename  # Add 'static/' to the filename
+        pdf = canvas.Canvas(self.filename, pagesize=self.page_size)
 
-        self.pdf.setStrokeColor("black")
-        self.pdf.setLineWidth(1)
-        self.pdf.setLineCap(2)
+        # Set the title of the PDF
+        pdf.setTitle(f"Target - {int(self.yards)} yards - {self.MOA} MOA per click")
+
+        pdf.setStrokeColor("black")
+        pdf.setLineWidth(1)
+        pdf.setLineCap(2)
 
         grid_size = self.minute_of_angle()
 
         text = f"{self.MOA} MOA grid ({grid_size:.3f} in) at {self.yards} yards"
-        self.pdf.setFillColor("black")
-        self.pdf.setFont("Helvetica", 12)
-        self.draw_centered_text(self.pdf, text, self.page_size[0] / 2, 0.5 * inch)
+        pdf.setFillColor("black")
+        pdf.setFont("Helvetica", 12)
+        self.draw_centered_text(pdf, text, self.page_size[0] / 2, 0.5 * inch)
 
         available_width = (self.page_size[0] - 2 * self.margin) / inch  # inches
         available_height = (self.page_size[1] - 2 * self.margin) / inch  # inches
@@ -86,31 +85,29 @@ class target:
 
         if self.scope_adjustment_text:
             # Quadrant lines
-            self.pdf.setStrokeColor("gray")
-            self.pdf.setLineWidth(5)
-            self.pdf.line(x_center, y_start, x_center, y_start + grid_height * inch)
-            self.pdf.line(x_start, y_center, x_start + grid_width * inch, y_center)
-            self.pdf.setStrokeColor("black")
-            self.pdf.setLineWidth(1)
+            pdf.setStrokeColor("gray")
+            pdf.setLineWidth(5)
+            pdf.line(x_center, y_start, x_center, y_start + grid_height * inch)
+            pdf.line(x_start, y_center, x_start + grid_width * inch, y_center)
+            pdf.setStrokeColor("black")
+            pdf.setLineWidth(1)
 
         # Draw horizontal lines
         for i in range(num_rows + 1):
             y = y_start + i * grid_size * inch
-            self.pdf.line(x_start, y, x_start + grid_width * inch, y)
+            pdf.line(x_start, y, x_start + grid_width * inch, y)
 
         # Draw vertical lines
         for i in range(num_cols + 1):
             x = x_start + i * grid_size * inch
-            self.pdf.line(x, y_start, x, y_start + grid_height * inch)
+            pdf.line(x, y_start, x, y_start + grid_height * inch)
 
         # Draw diagonal lines
-        self.pdf.setLineWidth(
-            self.diagonal_thickness * 72
-        )  # Convert from inches to points
-        self.pdf.line(
+        pdf.setLineWidth(self.diagonal_thickness * 72)  # Convert from inches to points
+        pdf.line(
             x_start, y_start, x_start + grid_width * inch, y_start + grid_height * inch
         )
-        self.pdf.line(
+        pdf.line(
             x_start + grid_width * inch, y_start, x_start, y_start + grid_height * inch
         )
 
@@ -118,7 +115,7 @@ class target:
         if self.scope_adjustment_text:
             scope_adjustment_text_size = 72
             self.draw_centered_text(
-                self.pdf,
+                pdf,
                 "R/U",
                 x_center - (x_center - x_start) / 2,
                 y_center - (y_center - y_start) / 2,
@@ -126,7 +123,7 @@ class target:
                 font_color="gray",
             )
             self.draw_centered_text(
-                self.pdf,
+                pdf,
                 "R/D",
                 x_center - (x_center - x_start) / 2,
                 y_center + (y_center - y_start) / 2,
@@ -134,7 +131,7 @@ class target:
                 font_color="gray",
             )
             self.draw_centered_text(
-                self.pdf,
+                pdf,
                 "L/U",
                 x_center + (x_center - x_start) / 2,
                 y_center - (y_center - y_start) / 2,
@@ -142,12 +139,12 @@ class target:
                 font_color="gray",
             )
             self.draw_centered_text(
-                self.pdf,
+                pdf,
                 "L/D",
                 x_center + (x_center - x_start) / 2,
                 y_center + (y_center - y_start) / 2,
                 font_size=scope_adjustment_text_size,
                 font_color="gray",
             )
-
-        self.pdf.save()
+        pdf.save()
+        self.filename = self.filename[7:]  # Remove 'static/' from the filename
