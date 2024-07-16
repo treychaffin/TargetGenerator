@@ -2,9 +2,9 @@ import os
 import re
 
 from flask import Flask, redirect, render_template, request, url_for
-from werkzeug.utils import safe_join
+from werkzeug.security import safe_join
 
-from pdf_gen import create_target
+from pdf_gen import target
 
 app = Flask(__name__)
 
@@ -14,14 +14,14 @@ def download_page():
     return render_template("targetgenerator.html")
 
 
-@app.route("/create_target", methods=["GET", "POST"])
+@app.route("/create_target", methods=["GET", "POST"])  # type: ignore
 def run_function():
     global filename
     if request.method == "POST":
-        moa = request.form.get("moa")
-        yardage = request.form.get("yardage")
-        diagonal_thickness = request.form.get("diagonal_thickness")
-        scope_adjustment_text = bool(request.form.get("scope_adjustment_text"))
+        moa = request.form.get("moa", "0.25")
+        yardage = request.form.get("yardage", "100")
+        diagonal_thickness = request.form.get("diagonal_thickness", "0.125")
+        scope_adjustment_text = request.form.get("scope_adjustment_text", False)
 
         # Ensure variables are the correct types
         moa = "0" + moa if moa.startswith(".") else moa  # float
@@ -31,19 +31,19 @@ def run_function():
             else diagonal_thickness
         )  # float
 
-        create_target(
-            MOA=float(moa),
-            yards=float(yardage),
-            diagonal_thickness=float(diagonal_thickness),
-            scope_adjustment_text=bool(scope_adjustment_text),
+        Target = target(
+            float(yardage),
+            float(moa),
+            float(diagonal_thickness),
+            bool(scope_adjustment_text),
         )
-        filename = f"{str(yardage)}yards_{str(moa).replace('.','-')}moa.pdf"
+        Target.create_target()
+        filename = Target.filename
         return redirect(url_for("view_pdf", filename=filename))
 
 
 @app.route("/pdf")
 def view_pdf():
-    filename = request.args.get("filename")
     return render_template("pdf.html", filename=filename)
 
 
@@ -54,13 +54,13 @@ def delete_pdf():
     # prevent path injection
     sanitized_filename = re.sub(r"[^a-zA-Z0-9\-_\.]", "", filename)
     filepath = safe_join(os.getcwd(), "static", sanitized_filename)
-    normalized_path = os.path.normpath(filepath)
+    normalized_path = os.path.normpath(filepath)  # type: ignore
     base_path = os.path.normpath(os.getcwd() + "/static")
     if not normalized_path.startswith(base_path):
         return "Invalid file path", 400
 
     try:
-        os.remove(filepath)
+        os.remove(filepath)  # type: ignore
     except FileNotFoundError:
         pass
     return "", 204
