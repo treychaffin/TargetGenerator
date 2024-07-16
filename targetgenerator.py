@@ -4,7 +4,7 @@ import re
 from flask import Flask, redirect, render_template, request, url_for
 from werkzeug.utils import safe_join
 
-from pdf_gen import create_target
+from pdf_gen import target
 
 app = Flask(__name__)
 
@@ -31,14 +31,9 @@ def run_function():
             else diagonal_thickness
         )  # float
 
-        create_target(
-            MOA=float(moa),
-            yards=float(yardage),
-            diagonal_thickness=float(diagonal_thickness),
-            scope_adjustment_text=bool(scope_adjustment_text),
-        )
-        filename = f"{str(yardage)}yards_{str(moa).replace('.','-')}moa.pdf"
-        return redirect(url_for("view_pdf", filename=filename))
+        Target = target(yardage, moa, diagonal_thickness, scope_adjustment_text)
+        Target.create_target()
+        return redirect(url_for("view_pdf", filename=Target.filename))
 
 
 @app.route("/pdf")
