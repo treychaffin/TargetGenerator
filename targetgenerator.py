@@ -14,7 +14,7 @@ def download_page():
     return render_template("targetgenerator.html")
 
 
-@app.route("/create_target", methods=["GET", "POST"])
+@app.route("/create_target", methods=["GET", "POST"])  # type: ignore
 def run_function():
     global filename
     if request.method == "POST":
@@ -51,20 +51,16 @@ def view_pdf():
 def delete_pdf():
     """Delete the PDF file after exiting viewing/downloading it."""
 
-    if filename is None:
-        return "No file to delete", 400
-
     # prevent path injection
-    print(f"filename[{type(filename)}]: {filename}")
     sanitized_filename = re.sub(r"[^a-zA-Z0-9\-_\.]", "", filename)
     filepath = safe_join(os.getcwd(), "static", sanitized_filename)
-    normalized_path = os.path.normpath(filepath)
+    normalized_path = os.path.normpath(filepath)  # type: ignore
     base_path = os.path.normpath(os.getcwd() + "/static")
     if not normalized_path.startswith(base_path):
         return "Invalid file path", 400
 
     try:
-        os.remove(filepath)
+        os.remove(filepath)  # type: ignore
     except FileNotFoundError:
         pass
     return "", 204
