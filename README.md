@@ -28,4 +28,4 @@ Open your web browser and go to [http://127.0.0.1:5000](http://127.0.0.1:5000)
 
 [https://hub.docker.com/r/treychaffin785/targetgenerator](https://hub.docker.com/r/treychaffin785/targetgenerator)
 
-    docker container run -d -p 5000:5000 treychaffin785/targetgenerator:0.0.2
+    docker container run -d -p 5000:5000 treychaffin785/targetgenerator:0.0.3
