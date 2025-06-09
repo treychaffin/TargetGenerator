@@ -1,3 +1,8 @@
 !/static/
 !/static/.gitkeep
 __pycache__
+.ruff_cache/
+.venv/
+# Ignore all PDF files in this directory and subdirectories
+*.pdf
+**/*.pdf
