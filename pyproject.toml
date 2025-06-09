@@ -1,0 +1,34 @@
+[project]
+name = "targetgenerator"
+version = "0.1.0"
+description = "tools for generating target PDFs"
+authors = [
+    { name = "Trey Chaffin", email = "treychaffin@gmail.com" }
+]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "flask>=3.1.1",
+    "reportlab>=4.4.1",
+]
+
+[tool.ruff]
+line-length = 80
+
+[tool.ruff.lint]
+select = [
+    "E",    # All errors
+    "W",    # All warnings
+    "F",    # All pyflakes codes
+    "I",    # All isort codes
+    "N",    # All naming convention codes
+    "D",    # All docstring related codes
+    "C4",   # All complexity related codes
+    "B",    # All bugbear codes
+    "ISC",  # All import sorting codes
+    "TID",  # All type checking codes
+]
+
+[tool.ruff.lint.pydocstyle]
+# https://google.github.io/styleguide/pyguide.html
+convention = "google"
