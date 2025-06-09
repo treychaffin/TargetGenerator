@@ -1,21 +1,25 @@
+"""Flask app for generating and viewing PDF targets."""
+
 import os
 import re
 
 from flask import Flask, redirect, render_template, request, url_for
 from werkzeug.utils import safe_join
 
-from pdf_gen import target
+from pdf_gen import Target
 
 app = Flask(__name__)
 
 
 @app.route("/")
 def download_page():
+    """Render the download page."""
     return render_template("targetgenerator.html")
 
 
 @app.route("/create_target", methods=["GET", "POST"])
 def run_function():
+    """Run the target creation function and redirect to the PDF view."""
     global filename
     if request.method == "POST":
         moa = request.form.get("moa")
@@ -31,13 +35,18 @@ def run_function():
             else diagonal_thickness
         )  # float
 
-        Target = target(yardage, moa, diagonal_thickness, scope_adjustment_text)
-        Target.create_target()
-        return redirect(url_for("view_pdf", filename=Target.filename))
+        target = Target(yards=float(yardage),
+                        MOA=float(moa),
+                        diagonal_thickness=float(diagonal_thickness),
+                        scope_adjustment_text=scope_adjustment_text,
+                        flask=True)
+        target.create_target()
+        return redirect(url_for("view_pdf", filename=target.filename))
 
 
 @app.route("/pdf")
 def view_pdf():
+    """View the generated PDF."""
     filename = request.args.get("filename")
     return render_template("pdf.html", filename=filename)
 
@@ -45,7 +54,6 @@ def view_pdf():
 @app.route("/delete_pdf", methods=["POST"])
 def delete_pdf():
     """Delete the PDF file after exiting viewing/downloading it."""
-
     # prevent path injection
     sanitized_filename = re.sub(r"[^a-zA-Z0-9\-_\.]", "", filename)
     filepath = safe_join(os.getcwd(), "static", sanitized_filename)
