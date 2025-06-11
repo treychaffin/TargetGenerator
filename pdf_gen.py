@@ -13,9 +13,7 @@ class target:
         scope_adjustment_text: bool = True,
     ) -> None:
         """Initialize the target object with the given parameters."""
-        self.filename: str = (
-            f"{str(yards).replace('.','-')}yards_{str(MOA).replace('.','-')}moa.pdf"
-        )
+        self.filename: str = f"{str(yards).replace('.', '-')}yards_{str(MOA).replace('.', '-')}moa.pdf"
         self.yards: float = float(yards)
         self.MOA: float = float(MOA)
         self.diagonal_thickness: float = float(diagonal_thickness)
@@ -52,11 +50,15 @@ class target:
     def create_target(self) -> None:
         """Create a target PDF with a grid spacing of a specified MOA click at a given yardage."""
 
-        self.filename = "static/" + self.filename  # Add 'static/' to the filename
+        self.filename = (
+            "static/" + self.filename
+        )  # Add 'static/' to the filename
         pdf = canvas.Canvas(self.filename, pagesize=self.page_size)
 
         # Set the title of the PDF
-        pdf.setTitle(f"Target - {int(self.yards)} yards - {self.MOA} MOA per click")
+        pdf.setTitle(
+            f"Target - {int(self.yards)} yards - {self.MOA} MOA per click"
+        )
 
         pdf.setStrokeColor("black")
         pdf.setLineWidth(1)
@@ -70,7 +72,9 @@ class target:
         self.draw_centered_text(pdf, text, self.page_size[0] / 2, 0.5 * inch)
 
         available_width = (self.page_size[0] - 2 * self.margin) / inch  # inches
-        available_height = (self.page_size[1] - 2 * self.margin) / inch  # inches
+        available_height = (
+            self.page_size[1] - 2 * self.margin
+        ) / inch  # inches
         num_rows = math.floor(((available_width / grid_size) // 2) * 2)
         num_cols = num_rows
         grid_width = num_cols * grid_size
@@ -78,7 +82,9 @@ class target:
 
         # Center the grid on the page
         x_start = self.margin + (available_width * inch - grid_width * inch) / 2
-        y_start = self.margin + (available_height * inch - grid_height * inch) / 2
+        y_start = (
+            self.margin + (available_height * inch - grid_height * inch) / 2
+        )
 
         x_center = self.margin + available_width / 2 * inch
         y_center = self.margin + available_height / 2 * inch
@@ -103,12 +109,20 @@ class target:
             pdf.line(x, y_start, x, y_start + grid_height * inch)
 
         # Draw diagonal lines
-        pdf.setLineWidth(self.diagonal_thickness * 72)  # Convert from inches to points
+        pdf.setLineWidth(
+            self.diagonal_thickness * 72
+        )  # Convert from inches to points
         pdf.line(
-            x_start, y_start, x_start + grid_width * inch, y_start + grid_height * inch
+            x_start,
+            y_start,
+            x_start + grid_width * inch,
+            y_start + grid_height * inch,
         )
         pdf.line(
-            x_start + grid_width * inch, y_start, x_start, y_start + grid_height * inch
+            x_start + grid_width * inch,
+            y_start,
+            x_start,
+            y_start + grid_height * inch,
         )
 
         # Scope Adjustment Text
