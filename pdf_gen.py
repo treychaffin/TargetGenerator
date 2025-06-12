@@ -224,6 +224,11 @@ class Target:
 
 
 if __name__ == "__main__":
+    if not log.hasHandlers():
+        handler = logging.StreamHandler()
+        formatter = logging.Formatter("%(levelname)s:%(name)s:%(message)s")
+        handler.setFormatter(formatter)
+        log.addHandler(handler)
     Target(
         yards=100,
         moa=0.25,
