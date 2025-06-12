@@ -1,36 +1,87 @@
 """Class for generating a shooting target PDF."""
 
+import logging
 import math
 
 from reportlab.lib.units import inch
 from reportlab.pdfgen import canvas
 
+log = logging.getLogger(__name__)
+log.setLevel(logging.INFO)
 
-class target:
+
+class Target:
+    """Class for generating a shooting target PDF."""
+
     def __init__(
         self,
-        yards: float = 100,
-        MOA: float = 0.25,
-        diagonal_thickness: float = 0.125,
-        scope_adjustment_text: bool = True,
+        **kwargs,
     ) -> None:
-        """Initialize the target object with the given parameters."""
-        self.filename: str = f"{str(yards).replace('.', '-')}yards_{str(MOA).replace('.', '-')}moa.pdf"
-        self.yards: float = float(yards)
-        self.MOA: float = float(MOA)
-        self.diagonal_thickness: float = float(diagonal_thickness)
-        self.scope_adjustment_text: bool = bool(scope_adjustment_text)
-        self.page_size: tuple[float, float] = (8.5 * inch, 11 * inch)
+        """Initialize Target object and create target PDF.
+
+        **kwargs**: allows for optional parameters:
+            * **yards**: float, distance in yards (default: 100)
+            * **moa**: float, minute of angle (default: 0.25)
+            * **diagonal_thickness**: float, thickness of diagonal lines in
+                inches (default: 0.125)
+            * **scope_adjustment_text**: bool, whether to include scope
+                adjustment text (default: True)
+            * **flask**: bool, whether to generate a filename for Flask
+                (default: False)
+            * **filename**: str, custom filename for the PDF
+                (default: generated based on yards and moa)
+            * **create_target**: bool, whether to create the target PDF
+        """
+        self.yards: float = kwargs.get("yards", 100)
+
+        self.moa: float = kwargs.get("moa", 0.25)
+
+        self.diagonal_thickness: float = kwargs.get("diagonal_thickness", 0.125)
+
+        self.scope_adjustment_text: bool = kwargs.get(
+            "scope_adjustment_text", True
+        )
+
+        self.flask: bool = kwargs.get("flask", False)
+
+        if self.flask:
+            self.filename: str = self._flask_filename()
+        else:
+            self.filename: str = kwargs.get("filename", self._filename())
+
         self.margin: float = float(0.5 * inch)
 
-    def minute_of_angle(self) -> float:
-        """Calculate the size of a minute of angle (MOA) in inches at a given yardage."""
-        moa_per_degree = self.MOA / 60.0
+        self.page_size: tuple[float, float] = (8.5 * inch, 11 * inch)
+
+        self.create_on_init: bool = kwargs.get("create_target", True)
+
+        if self.create_on_init:
+            self._create_target()
+
+    def _filename(self) -> str:
+        """Generate a filename based on the target parameters."""
+        filename = f"{str(self.yards).replace('.', '-')}_yards_"
+        filename += f"{str(self.moa).replace('.', '-')}_moa.pdf"
+        return filename
+
+    def _flask_filename(self) -> str:
+        """Generate a filename for Flask based on the target parameters."""
+        return f"static/{self._filename()}"
+
+    def _minute_of_angle(self) -> float:
+        """Calculate the size of a MOA.
+
+        Calculates the size of a minute of angle at the yardage property.
+
+        Returns:
+            float: Size of MOA in inches.
+        """
+        moa_per_degree = self.moa / 60.0
         inches = self.yards * 3 * 12
         moa_inches = inches * math.radians(moa_per_degree / 2) * 2
         return moa_inches
 
-    def draw_centered_text(
+    def _draw_centered_text(
         self,
         c: canvas.Canvas,
         text: str,
@@ -49,29 +100,30 @@ class target:
         # Adjust x and y to center the text
         c.drawString(x - (text_width / 2), y - (text_height / 3), text)
 
-    def create_target(self) -> None:
-        """Create a target PDF with a grid spacing of a specified MOA click at a given yardage."""
+    def _create_target(self) -> None:
+        """Create a target PDF.
 
-        self.filename = (
-            "static/" + self.filename
-        )  # Add 'static/' to the filename
+        Creates a PDF file with a shooting target grid based on the
+        specified yards and MOA. The grid is centered on the page, and
+        includes diagonal lines and optional scope adjustment text.
+        """
         pdf = canvas.Canvas(self.filename, pagesize=self.page_size)
 
         # Set the title of the PDF
         pdf.setTitle(
-            f"Target - {int(self.yards)} yards - {self.MOA} MOA per click"
+            f"Target - {int(self.yards)} yards - {self.moa} MOA per click"
         )
 
         pdf.setStrokeColor("black")
         pdf.setLineWidth(1)
         pdf.setLineCap(2)
 
-        grid_size = self.minute_of_angle()
+        grid_size = self._minute_of_angle()
 
-        text = f"{self.MOA} MOA grid ({grid_size:.3f} in) at {self.yards} yards"
+        text = f"{self.moa} MOA grid ({grid_size:.3f} in) at {self.yards} yards"
         pdf.setFillColor("black")
         pdf.setFont("Helvetica", 12)
-        self.draw_centered_text(pdf, text, self.page_size[0] / 2, 0.5 * inch)
+        self._draw_centered_text(pdf, text, self.page_size[0] / 2, 0.5 * inch)
 
         available_width = (self.page_size[0] - 2 * self.margin) / inch  # inches
         available_height = (
@@ -130,7 +182,7 @@ class target:
         # Scope Adjustment Text
         if self.scope_adjustment_text:
             scope_adjustment_text_size = 72
-            self.draw_centered_text(
+            self._draw_centered_text(
                 pdf,
                 "R/U",
                 x_center - (x_center - x_start) / 2,
@@ -138,7 +190,7 @@ class target:
                 font_size=scope_adjustment_text_size,
                 font_color="gray",
             )
-            self.draw_centered_text(
+            self._draw_centered_text(
                 pdf,
                 "R/D",
                 x_center - (x_center - x_start) / 2,
@@ -146,7 +198,7 @@ class target:
                 font_size=scope_adjustment_text_size,
                 font_color="gray",
             )
-            self.draw_centered_text(
+            self._draw_centered_text(
                 pdf,
                 "L/U",
                 x_center + (x_center - x_start) / 2,
@@ -154,7 +206,7 @@ class target:
                 font_size=scope_adjustment_text_size,
                 font_color="gray",
             )
-            self.draw_centered_text(
+            self._draw_centered_text(
                 pdf,
                 "L/D",
                 x_center + (x_center - x_start) / 2,
@@ -163,4 +215,18 @@ class target:
                 font_color="gray",
             )
         pdf.save()
-        self.filename = self.filename[7:]  # Remove 'static/' from the filename
+        log.info(f"Target PDF created: {self.filename}")
+
+    def create_target(self) -> str:
+        """Create the target PDF and return the filename."""
+        self._create_target()
+        return self.filename
+
+
+if __name__ == "__main__":
+    Target(
+        yards=100,
+        moa=0.25,
+        diagonal_thickness=0.125,
+        scope_adjustment_text=True,
+    )
