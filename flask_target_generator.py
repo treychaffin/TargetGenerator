@@ -6,6 +6,7 @@ import re
 
 from flask import Flask, redirect, render_template, request, url_for
 from werkzeug.security import safe_join
+from werkzeug.wrappers.response import Response as WerkzeugResponse
 
 from pdf_gen import Target
 
@@ -16,13 +17,13 @@ log.setLevel(logging.INFO)
 
 
 @app.route("/")
-def download_page():
+def download_page() -> str:
     """Render the main page for target generation."""
     return render_template("targetgenerator.html")
 
 
 @app.route("/create_target", methods=["GET", "POST"])
-def run_function():
+def run_function() -> WerkzeugResponse:
     """Handle target generation based on user input."""
     global filename
     if request.method == "POST":
@@ -53,13 +54,13 @@ def run_function():
 
 
 @app.route("/pdf")
-def view_pdf():
+def view_pdf() -> str:
     """Render the PDF viewing page."""
     return render_template("pdf.html", filename=filename)
 
 
 @app.route("/delete_pdf", methods=["POST"])
-def delete_pdf():
+def delete_pdf() -> tuple[str, int]:
     """Delete the PDF file after exiting viewing/downloading it."""
     # prevent path injection
     sanitized_filename = re.sub(r"[^a-zA-Z0-9\-_\.]", "", filename)
