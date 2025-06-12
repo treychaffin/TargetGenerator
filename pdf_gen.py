@@ -31,6 +31,9 @@ class Target:
             * **filename**: str, custom filename for the PDF
                 (default: generated based on yards and moa)
             * **create_target**: bool, whether to create the target PDF
+
+        Example:
+            target = Target(yards=100, moa=0.25, diagonal_thickness=0.125)
         """
         self.yards: float = kwargs.get("yards", 100)
 
