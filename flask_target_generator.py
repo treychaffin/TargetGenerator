@@ -62,19 +62,13 @@ def delete_pdf():
     """Delete the PDF file after exiting viewing/downloading it."""
     # prevent path injection
     sanitized_filename = re.sub(r"[^a-zA-Z0-9\-_\.]", "", filename)
-
     filepath = safe_join(os.getcwd(), "static", sanitized_filename)
-
     if not filepath:
         return "Invalid file path", 400
-
     normalized_path = os.path.normpath(filepath)
-
     base_path = os.path.normpath(os.getcwd())
-
     if not normalized_path.startswith(base_path):
         return "Invalid file path", 400
-
     try:
         os.remove(filepath)
     except FileNotFoundError:
