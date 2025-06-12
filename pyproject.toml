@@ -4,32 +4,27 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = [
-    "flask>=3.1.1",
-    "pip>=25.1.1",
-    "reportlab>=4.4.1",
-]
+dependencies = ["flask>=3.1.1", "pip>=25.1.1", "reportlab>=4.4.1"]
 
 [tool.ruff]
 line-length = 80
 
 [tool.ruff.lint]
 select = [
-    "D", # Docstring issues
-    "E", # Errors
-    "W", # Warnings
-    "F", # Pyflakes issues
-    "C", # Complexity issues
-    "I", # Import issues
-    "N", # Naming issues
-    "T", # Type issues
-    "S", # Security issues   
+    "D",   # Docstring issues
+    "E",   # Errors
+    "W",   # Warnings
+    "F",   # Pyflakes issues
+    "C",   # Complexity issues
+    "I",   # Import issues
+    "N",   # Naming issues
+    "T",   # Type issues
+    "S",   # Security issues   
+    "ANN", # Type annotations issues
 ]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
 
 [dependency-groups]
-dev = [
-    "ruff>=0.11.13",
-]
+dev = ["ruff>=0.11.13"]
