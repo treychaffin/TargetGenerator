@@ -1,21 +1,29 @@
+"""Flask application for generating and viewing PDF targets."""
+
+import logging
 import os
 import re
 
 from flask import Flask, redirect, render_template, request, url_for
 from werkzeug.security import safe_join
 
-from pdf_gen import target
+from pdf_gen import Target
 
 app = Flask(__name__)
+
+log = logging.getLogger(__name__)
+log.setLevel(logging.INFO)
 
 
 @app.route("/")
 def download_page():
+    """Render the main page for target generation."""
     return render_template("targetgenerator.html")
 
 
 @app.route("/create_target", methods=["GET", "POST"])  # type: ignore
 def run_function():
+    """Handle target generation based on user input."""
     global filename
     if request.method == "POST":
         moa = request.form.get("moa", "0.25")
@@ -31,40 +39,82 @@ def run_function():
             else diagonal_thickness
         )  # float
 
-        Target = target(
-            float(yardage),
-            float(moa),
-            float(diagonal_thickness),
-            bool(scope_adjustment_text),
+        target = Target(
+            yards=float(yardage),
+            moa=float(moa),
+            diagonal_thickness=float(diagonal_thickness),
+            scope_adjustment_text=bool(scope_adjustment_text),
+            flask=True,
         )
-        Target.create_target()
-        filename = Target.filename
+        filename = target.filename
+        log.info(f"Generated target: {filename}")
         return redirect(url_for("view_pdf", filename=filename))
 
 
 @app.route("/pdf")
 def view_pdf():
+    """Render the PDF viewing page."""
     return render_template("pdf.html", filename=filename)
 
 
 @app.route("/delete_pdf", methods=["POST"])
 def delete_pdf():
     """Delete the PDF file after exiting viewing/downloading it."""
-
     # prevent path injection
     sanitized_filename = re.sub(r"[^a-zA-Z0-9\-_\.]", "", filename)
+
     filepath = safe_join(os.getcwd(), "static", sanitized_filename)
-    normalized_path = os.path.normpath(filepath)  # type: ignore
-    base_path = os.path.normpath(os.getcwd() + "/static")
+
+    if not filepath:
+        return "Invalid file path", 400
+
+    normalized_path = os.path.normpath(filepath)
+
+    base_path = os.path.normpath(os.getcwd())
+
     if not normalized_path.startswith(base_path):
         return "Invalid file path", 400
 
     try:
-        os.remove(filepath)  # type: ignore
+        os.remove(filepath)
     except FileNotFoundError:
         pass
     return "", 204
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    if not log.hasHandlers():
+        handler = logging.StreamHandler()
+        formatter = logging.Formatter("%(levelname)s:%(name)s:%(message)s")
+        handler.setFormatter(formatter)
+        log.addHandler(handler)
+
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="Run the Flask Target Generator."
+    )
+    parser.add_argument(
+        "--port",
+        "-p",
+        type=int,
+        default=5000,
+        help="Port to run the Flask application on (default: 5000)",
+    )
+    parser.add_argument(
+        "--host",
+        "-H",
+        type=str,
+        default="127.0.0.1",
+        help="Host to run the Flask application on (default: 127.0.0.1)",
+    )
+    parser.add_argument(
+        "--debug",
+        "-d",
+        action="store_true",
+        default=False,
+        help="Run the Flask application in debug mode",
+    )
+    args = parser.parse_args()
+
+    app.run(host=args.host, port=args.port, debug=args.debug)

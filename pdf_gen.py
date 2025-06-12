@@ -2,6 +2,7 @@
 
 import logging
 import math
+import os
 
 from reportlab.lib.units import inch
 from reportlab.pdfgen import canvas
@@ -47,10 +48,7 @@ class Target:
 
         self.flask: bool = kwargs.get("flask", False)
 
-        if self.flask:
-            self.filename: str = self._flask_filename()
-        else:
-            self.filename: str = kwargs.get("filename", self._filename())
+        self.filename: str = kwargs.get("filename", self._filename())
 
         self.margin: float = float(0.5 * inch)
 
@@ -110,7 +108,13 @@ class Target:
         specified yards and MOA. The grid is centered on the page, and
         includes diagonal lines and optional scope adjustment text.
         """
-        pdf = canvas.Canvas(self.filename, pagesize=self.page_size)
+        if self.flask:
+            if not os.path.exists("static"):
+                os.makedirs("static")
+            filename = os.path.join("static", self.filename)
+        else:
+            filename = self.filename
+        pdf = canvas.Canvas(filename, pagesize=self.page_size)
 
         # Set the title of the PDF
         pdf.setTitle(
