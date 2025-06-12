@@ -21,7 +21,7 @@ def download_page():
     return render_template("targetgenerator.html")
 
 
-@app.route("/create_target", methods=["GET", "POST"])  # type: ignore
+@app.route("/create_target", methods=["GET", "POST"])
 def run_function():
     """Handle target generation based on user input."""
     global filename
@@ -49,6 +49,7 @@ def run_function():
         filename = target.filename
         log.info(f"Generated target: {filename}")
         return redirect(url_for("view_pdf", filename=filename))
+    return redirect(url_for("download_page"))
 
 
 @app.route("/pdf")
