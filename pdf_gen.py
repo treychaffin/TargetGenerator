@@ -1,3 +1,5 @@
+"""Class for generating a shooting target PDF."""
+
 import math
 
 from reportlab.lib.units import inch
