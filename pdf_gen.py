@@ -3,6 +3,7 @@
 import logging
 import math
 import os
+from typing import TypedDict, Unpack
 
 from reportlab.lib.units import inch
 from reportlab.pdfgen import canvas
@@ -11,13 +12,22 @@ log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
 
 
+class TargetKwargs(TypedDict, total=False):
+    """Expected keyword arguments for the Target class."""
+
+    yards: float
+    moa: float
+    diagonal_thickness: float
+    scope_adjustment_text: bool
+    flask: bool
+    filename: str
+    create_target: bool
+
+
 class Target:
     """Class for generating a shooting target PDF."""
 
-    def __init__(
-        self,
-        **kwargs,
-    ) -> None:
+    def __init__(self, **kwargs: Unpack[TargetKwargs]) -> None:
         """Initialize Target object and create target PDF.
 
         **kwargs**: allows for optional parameters:
@@ -88,9 +98,9 @@ class Target:
         text: str,
         x: float,
         y: float,
-        font="Helvetica",
-        font_size=12,
-        font_color="black",
+        font: str = "Helvetica",
+        font_size: int = 12,
+        font_color: str = "black",
     ) -> None:
         """Draw text centered around a given point."""
         c.setFont(font, font_size)
