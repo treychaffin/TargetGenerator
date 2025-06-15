@@ -3,4 +3,4 @@ WORKDIR /app
 COPY . /app
 RUN pip install -r requirements.txt
 EXPOSE 5000
-CMD python ./targetgenerator.py
+CMD ["python", "./flask_target_generator.py", "--host", "0.0.0.0"]
