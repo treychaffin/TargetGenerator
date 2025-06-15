@@ -1,6 +1,7 @@
 !/static/
 !/static/.gitkeep
 __pycache__
+.venv/
 *.pdf
 **/*.pdf
 .venv/
